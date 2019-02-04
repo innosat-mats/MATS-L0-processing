@@ -15,6 +15,7 @@
 from __future__ import print_function
 
 from os import listdir
+import numpy as np
 from read_racfile import read_racfile
 import json
 from JSON_Encoder import JSON_Encoder
@@ -24,6 +25,7 @@ import binascii
 
 AllDataSorted = [] #List of dicts. Each entry is a packet
 CCD_image_data = {} #List of dicts. Each entry is a CCD image
+CCD_meta_data = {}
 
 def read_racdirectory(in_directory,out_directory):
     allFiles = listdir(in_directory)
@@ -38,6 +40,11 @@ def read_racdirectory(in_directory,out_directory):
     CCD_image_data['data channel 1'] = []
     CCD_image_data['data channel 2'] = []
     CCD_image_data['data channel 3'] = []
+    
+    #data needed for saving actual image to either jpg or pnm-file
+    CCD_meta_data['data channel 1'] = []
+    CCD_meta_data['data channel 2'] = []
+    CCD_meta_data['data channel 3'] = []
     
     
     for j in range(0,3):
@@ -57,13 +64,23 @@ def read_racdirectory(in_directory,out_directory):
                     CCD_image_data['data channel '+str(j+1)][n]['stop'] = []
                     #Add data to image
                     CCD_image_data['data channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
+                    
+                    CCD_meta_data['data channel '+str(j+1)].append({})
+                    CCD_meta_data['data channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    
                 elif AllDataSorted[x]['SPH_grouping_flags'] == '10':
                     #print 'CCD data stop'
                     CCD_image_data['data channel '+str(j+1)][n]['stop'] = x 
                     CCD_image_data['data channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
                 elif AllDataSorted[x]['SPH_grouping_flags'] == '00':
-                    if not CCD_image_data:
-                        print('Warning: current .rac file started with continued CCD data')
+                    if not CCD_image_data['data channel '+str(j+1)]:
+                        print('Warning: current .rac file started with continued CCD data for this channel')
+                        if n==-1:#currently a work-around
+                            CCD_image_data['data channel '+str(j+1)].append({})
+                            CCD_image_data['data channel '+str(j+1)][n+1]['cont'] = []
+                            CCD_image_data['data channel '+str(j+1)][n+1]['data'] = []
                     CCD_image_data['data channel '+str(j+1)][n]['cont'].append(x) 
                     CCD_image_data['data channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
             
@@ -82,7 +99,7 @@ def read_racdirectory(in_directory,out_directory):
                 CCD_image_data['data channel '+str(j+1)][x]['error'] = 1
        
      #end channel loop  
-
+    
     filename = out_directory + '/JSON/packets.json'
     with open(filename, 'w') as outfile:
         print(str('Writing file ' + filename))
@@ -94,12 +111,27 @@ def read_racdirectory(in_directory,out_directory):
     #    #Write images out as jpeg images (for conversion in matlab)
             CCD_image_data['data channel '+str(j+1)][i]['filename'] = ''
             if (CCD_image_data['data channel '+str(j+1)][i].get('error') == 0):
-                filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.jpg'
-                print(str('Writing file ' + filename))
-                CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
-                with open(filename,'w') as f:
-                    f.write(CCD_image_data['data channel '+str(j+1)][i]['image'])
-                
+    #check JPEGQ to determine type of image (jpg or pnm)           
+                if (CCD_meta_data['data channel '+str(j+1)][i].get('JPEGQ')<=100):
+                    filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.jpg'
+                    print(str('Writing file ' + filename))
+                    CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
+                    with open(filename,'w') as f:
+                        f.write(CCD_image_data['data channel '+str(j+1)][i]['image'])
+                else:
+                    filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.pnm'
+                    print(str('Writing file ' + filename))
+                    CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
+                    cols=int(CCD_meta_data['data channel '+str(j+1)][i]['NCOL'])+1
+                    rows=int(CCD_meta_data['data channel '+str(j+1)][i]['NROW'])
+                    pnm_header="P5\n"+str(cols)+" "+str(rows)+"\n65535\n"
+                    #image_data=np.frombuffer(CCD_image_data['data channel '+str(j+1)][i]['image'])
+                    image_data=CCD_image_data['data channel '+str(j+1)][i]['image']
+                    with open(filename,'w') as f:
+                        f.write(pnm_header)
+                        #f.write(image_data.byteswap().tobytes())
+                        f.write(image_data)
+                    
 #end loop over channels
         
     filename = out_directory + '/JSON/images.json'
