@@ -89,7 +89,7 @@ def read_packet(data, pointer = 0):
     packet['DFH_service_type'] = int(A_bin[1][:],2)
     packet['DFH_service_subtype'] = int(A_bin[2][:],2)
     packet['DFH_CUC_time_seconds'] = int("".join(A_bin[3:7]),2)
-    packet['DFH_CUC_time_fraction'] = int("".join(A_bin[8:10]),2)
+    packet['DFH_CUC_time_fraction'] = int("".join(A_bin[7:9]),2)
     pointer = pointer + block_length
     
     ## SID (This should be rewritten as SID is not read for certain subtypes)
