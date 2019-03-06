@@ -125,7 +125,8 @@ def read_packet(data, pointer = 0):
     crc_dec = crc16.crc16xmodem(packet_data.decode("hex"),65535) #Calculate crc16-CCITT (0xFFFF initialization)
     crc = hex(crc_dec)[2:].zfill(4) #convert to hex, remove 0x from string and add leading zeros
     if packet['Packet_error_control_hex']  != crc:
-        raise ValueError('CRC checksum failed')
+        #raise ValueError('CRC checksum failed')
+        print(('CRC checksum failed'))
     
     
     return [packet,pointer]
@@ -167,7 +168,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
     if sid == 1:
         ## STATUS
         print('Reading STATUS')    
-        block_length = 33
+        block_length = 34
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match ' + str(block_length_test))
         data['SID_mnemonic'] = 'Status'
@@ -185,6 +186,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
         data['EDACN'] = numpy.fromstring(binascii.unhexlify(payload_data[42:50]),numpy.dtype('<u4'))
         data['SPWEOP'] = numpy.fromstring(binascii.unhexlify(payload_data[50:58]),numpy.dtype('<u4'))
         data['SPWEEP'] = numpy.fromstring(binascii.unhexlify(payload_data[58:66]),numpy.dtype('<u4'))
+        data['ANOMALY'] = numpy.fromstring(binascii.unhexlify(payload_data[66:68]),numpy.dtype('<u1'))
 
 
     elif sid == 10:
@@ -306,114 +308,116 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
     elif sid == 30:
         #CPRUA
         print('Reading CPRUA housekeeping')    
-        block_length = 32#9
+        block_length = 33#9
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match' + str(block_length_test))    
         data['SID_mnemonic'] = 'CPRUA module housekeeping data'
-        data['VGATE0'] = numpy.fromstring(binascii.unhexlify(payload_data[0:4]),numpy.dtype('<u2'))
+        data['STAT'] = numpy.fromstring(binascii.unhexlify(payload_data[0:2]),numpy.dtype('<u1')) #FIXME!
+        data['VGATE0'] = numpy.fromstring(binascii.unhexlify(payload_data[2:6]),numpy.dtype('<u2'))
         if int(data['VGATE0'])<0 or int(data['VGATE0'])>4095:
             print('WARNING: VGATE0='+str(data['VGATE0'])+' is out of range')
-        data['VSUBS0'] = numpy.fromstring(binascii.unhexlify(payload_data[4:8]),numpy.dtype('<u2'))
+        data['VSUBS0'] = numpy.fromstring(binascii.unhexlify(payload_data[6:10]),numpy.dtype('<u2'))
         if int(data['VSUBS0'])<0 or int(data['VSUBS0'])>4095:
             print('WARNING: VSUBS0='+str(data['VSUBS0'])+' is out of range')
-        data['VRD0'] = numpy.fromstring(binascii.unhexlify(payload_data[8:12]),numpy.dtype('<u2'))
+        data['VRD0'] = numpy.fromstring(binascii.unhexlify(payload_data[10:14]),numpy.dtype('<u2'))
         if int(data['VRD0'])<0 or int(data['VRD0'])>4095:
             print('WARNING: VRD0='+str(data['VRD0'])+' is out of range')
-        data['VOD0'] = numpy.fromstring(binascii.unhexlify(payload_data[12:16]),numpy.dtype('<u2'))
+        data['VOD0'] = numpy.fromstring(binascii.unhexlify(payload_data[14:18]),numpy.dtype('<u2'))
         if int(data['VOD0'])<0 or int(data['VOD0'])>4095:
             print('WARNING: VOD0='+str(data['VOD0'])+' is out of range')
-        data['VGATE1'] = numpy.fromstring(binascii.unhexlify(payload_data[16:20]),numpy.dtype('<u2'))
+        data['VGATE1'] = numpy.fromstring(binascii.unhexlify(payload_data[18:22]),numpy.dtype('<u2'))
         if int(data['VGATE1'])<0 or int(data['VGATE1'])>4095:
             print('WARNING: VGATE1='+str(data['VGATE1'])+' is out of range')
-        data['VSUBS1'] = numpy.fromstring(binascii.unhexlify(payload_data[20:24]),numpy.dtype('<u2'))
+        data['VSUBS1'] = numpy.fromstring(binascii.unhexlify(payload_data[22:26]),numpy.dtype('<u2'))
         if int(data['VSUBS1'])<0 or int(data['VSUBS1'])>4095:
             print('WARNING: VSUBS1='+str(data['VSUBS1'])+' is out of range')
-        data['VRD1'] = numpy.fromstring(binascii.unhexlify(payload_data[24:28]),numpy.dtype('<u2'))
+        data['VRD1'] = numpy.fromstring(binascii.unhexlify(payload_data[26:30]),numpy.dtype('<u2'))
         if int(data['VRD1'])<0 or int(data['VRD1'])>4095:
             print('WARNING: VRD1='+str(data['VRD1'])+' is out of range')
-        data['VOD1'] = numpy.fromstring(binascii.unhexlify(payload_data[28:32]),numpy.dtype('<u2'))
+        data['VOD1'] = numpy.fromstring(binascii.unhexlify(payload_data[30:34]),numpy.dtype('<u2'))
         if int(data['VOD1'])<0 or int(data['VOD1'])>4095:
             print('WARNING: VOD1='+str(data['VOD1'])+' is out of range')
-        data['VGATE2'] = numpy.fromstring(binascii.unhexlify(payload_data[32:36]),numpy.dtype('<u2'))
+        data['VGATE2'] = numpy.fromstring(binascii.unhexlify(payload_data[34:38]),numpy.dtype('<u2'))
         if int(data['VGATE2'])<0 or int(data['VGATE2'])>4095:
             print('WARNING: VGATE2='+str(data['VGATE2'])+' is out of range')
-        data['VSUBS2'] = numpy.fromstring(binascii.unhexlify(payload_data[36:40]),numpy.dtype('<u2'))
+        data['VSUBS2'] = numpy.fromstring(binascii.unhexlify(payload_data[38:42]),numpy.dtype('<u2'))
         if int(data['VSUBS2'])<0 or int(data['VSUBS2'])>4095:
             print('WARNING: VSUBS2='+str(data['VSUBS2'])+' is out of range')
-        data['VRD2'] = numpy.fromstring(binascii.unhexlify(payload_data[40:44]),numpy.dtype('<u2'))
+        data['VRD2'] = numpy.fromstring(binascii.unhexlify(payload_data[42:46]),numpy.dtype('<u2'))
         if int(data['VRD2'])<0 or int(data['VRD2'])>4095:
             print('WARNING: VRD2='+str(data['VRD2'])+' is out of range')
-        data['VOD2'] = numpy.fromstring(binascii.unhexlify(payload_data[44:48]),numpy.dtype('<u2'))
+        data['VOD2'] = numpy.fromstring(binascii.unhexlify(payload_data[46:50]),numpy.dtype('<u2'))
         if int(data['VOD2'])<0 or int(data['VOD2'])>4095:
             print('WARNING: VOD2='+str(data['VOD2'])+' is out of range')
-        data['VGATE3'] = numpy.fromstring(binascii.unhexlify(payload_data[48:52]),numpy.dtype('<u2'))
+        data['VGATE3'] = numpy.fromstring(binascii.unhexlify(payload_data[50:54]),numpy.dtype('<u2'))
         if int(data['VGATE3'])<0 or int(data['VGATE3'])>4095:
             print('WARNING: VGATE3='+str(data['VGATE3'])+' is out of range')
-        data['VSUBS3'] = numpy.fromstring(binascii.unhexlify(payload_data[52:56]),numpy.dtype('<u2'))
+        data['VSUBS3'] = numpy.fromstring(binascii.unhexlify(payload_data[54:58]),numpy.dtype('<u2'))
         if int(data['VSUBS3'])<0 or int(data['VSUBS3'])>4095:
             print('WARNING: VSUBS3='+str(data['VSUBS3'])+' is out of range')
-        data['VRD3'] = numpy.fromstring(binascii.unhexlify(payload_data[56:60]),numpy.dtype('<u2'))
+        data['VRD3'] = numpy.fromstring(binascii.unhexlify(payload_data[58:62]),numpy.dtype('<u2'))
         if int(data['VRD3'])<0 or int(data['VRD3'])>4095:
             print('WARNING: VRD3='+str(data['VRD3'])+' is out of range')
-        data['VOD3'] = numpy.fromstring(binascii.unhexlify(payload_data[60:64]),numpy.dtype('<u2'))
+        data['VOD3'] = numpy.fromstring(binascii.unhexlify(payload_data[62:66]),numpy.dtype('<u2'))
         if int(data['VOD3'])<0 or int(data['VOD3'])>4095:
             print('WARNING: VOD3='+str(data['VOD3'])+' is out of range')        
             
     elif sid == 31:
         #CPRUB
         print('Reading CPRUB housekeeping')    
-        block_length = 32#9
+        block_length = 33#9
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match' + str(block_length_test))    
         data['SID_mnemonic'] = 'CPRUB module housekeeping data'
-        data['VGATE0'] = numpy.fromstring(binascii.unhexlify(payload_data[0:4]),numpy.dtype('<u2'))
+        data['STAT'] = numpy.fromstring(binascii.unhexlify(payload_data[0:2]),numpy.dtype('<u1')) #FIXME!
+        data['VGATE0'] = numpy.fromstring(binascii.unhexlify(payload_data[2:6]),numpy.dtype('<u2'))
         if int(data['VGATE0'])<0 or int(data['VGATE0'])>4095:
             print('WARNING: VGATE0='+str(data['VGATE0'])+' is out of range')
-        data['VSUBS0'] = numpy.fromstring(binascii.unhexlify(payload_data[4:8]),numpy.dtype('<u2'))
+        data['VSUBS0'] = numpy.fromstring(binascii.unhexlify(payload_data[6:10]),numpy.dtype('<u2'))
         if int(data['VSUBS0'])<0 or int(data['VSUBS0'])>4095:
             print('WARNING: VSUBS0='+str(data['VSUBS0'])+' is out of range')
-        data['VRD0'] = numpy.fromstring(binascii.unhexlify(payload_data[8:12]),numpy.dtype('<u2'))
+        data['VRD0'] = numpy.fromstring(binascii.unhexlify(payload_data[10:14]),numpy.dtype('<u2'))
         if int(data['VRD0'])<0 or int(data['VRD0'])>4095:
             print('WARNING: VRD0='+str(data['VRD0'])+' is out of range')
-        data['VOD0'] = numpy.fromstring(binascii.unhexlify(payload_data[12:16]),numpy.dtype('<u2'))
+        data['VOD0'] = numpy.fromstring(binascii.unhexlify(payload_data[14:18]),numpy.dtype('<u2'))
         if int(data['VOD0'])<0 or int(data['VOD0'])>4095:
             print('WARNING: VOD0='+str(data['VOD0'])+' is out of range')
-        data['VGATE1'] = numpy.fromstring(binascii.unhexlify(payload_data[16:20]),numpy.dtype('<u2'))
+        data['VGATE1'] = numpy.fromstring(binascii.unhexlify(payload_data[18:22]),numpy.dtype('<u2'))
         if int(data['VGATE1'])<0 or int(data['VGATE1'])>4095:
             print('WARNING: VGATE1='+str(data['VGATE1'])+' is out of range')
-        data['VSUBS1'] = numpy.fromstring(binascii.unhexlify(payload_data[20:24]),numpy.dtype('<u2'))
+        data['VSUBS1'] = numpy.fromstring(binascii.unhexlify(payload_data[22:26]),numpy.dtype('<u2'))
         if int(data['VSUBS1'])<0 or int(data['VSUBS1'])>4095:
             print('WARNING: VSUBS1='+str(data['VSUBS1'])+' is out of range')
-        data['VRD1'] = numpy.fromstring(binascii.unhexlify(payload_data[24:28]),numpy.dtype('<u2'))
+        data['VRD1'] = numpy.fromstring(binascii.unhexlify(payload_data[26:30]),numpy.dtype('<u2'))
         if int(data['VRD1'])<0 or int(data['VRD1'])>4095:
             print('WARNING: VRD1='+str(data['VRD1'])+' is out of range')
-        data['VOD1'] = numpy.fromstring(binascii.unhexlify(payload_data[28:32]),numpy.dtype('<u2'))
+        data['VOD1'] = numpy.fromstring(binascii.unhexlify(payload_data[30:34]),numpy.dtype('<u2'))
         if int(data['VOD1'])<0 or int(data['VOD1'])>4095:
             print('WARNING: VOD1='+str(data['VOD1'])+' is out of range')
-        data['VGATE2'] = numpy.fromstring(binascii.unhexlify(payload_data[32:36]),numpy.dtype('<u2'))
+        data['VGATE2'] = numpy.fromstring(binascii.unhexlify(payload_data[34:38]),numpy.dtype('<u2'))
         if int(data['VGATE2'])<0 or int(data['VGATE2'])>4095:
             print('WARNING: VGATE2='+str(data['VGATE2'])+' is out of range')
-        data['VSUBS2'] = numpy.fromstring(binascii.unhexlify(payload_data[36:40]),numpy.dtype('<u2'))
+        data['VSUBS2'] = numpy.fromstring(binascii.unhexlify(payload_data[38:42]),numpy.dtype('<u2'))
         if int(data['VSUBS2'])<0 or int(data['VSUBS2'])>4095:
             print('WARNING: VSUBS2='+str(data['VSUBS2'])+' is out of range')
-        data['VRD2'] = numpy.fromstring(binascii.unhexlify(payload_data[40:44]),numpy.dtype('<u2'))
+        data['VRD2'] = numpy.fromstring(binascii.unhexlify(payload_data[42:46]),numpy.dtype('<u2'))
         if int(data['VRD2'])<0 or int(data['VRD2'])>4095:
             print('WARNING: VRD2='+str(data['VRD2'])+' is out of range')
-        data['VOD2'] = numpy.fromstring(binascii.unhexlify(payload_data[44:48]),numpy.dtype('<u2'))
+        data['VOD2'] = numpy.fromstring(binascii.unhexlify(payload_data[46:50]),numpy.dtype('<u2'))
         if int(data['VOD2'])<0 or int(data['VOD2'])>4095:
             print('WARNING: VOD2='+str(data['VOD2'])+' is out of range')
-        data['VGATE3'] = numpy.fromstring(binascii.unhexlify(payload_data[48:52]),numpy.dtype('<u2'))
+        data['VGATE3'] = numpy.fromstring(binascii.unhexlify(payload_data[50:54]),numpy.dtype('<u2'))
         if int(data['VGATE3'])<0 or int(data['VGATE3'])>4095:
             print('WARNING: VGATE3='+str(data['VGATE3'])+' is out of range')
-        data['VSUBS3'] = numpy.fromstring(binascii.unhexlify(payload_data[52:56]),numpy.dtype('<u2'))
+        data['VSUBS3'] = numpy.fromstring(binascii.unhexlify(payload_data[54:58]),numpy.dtype('<u2'))
         if int(data['VSUBS3'])<0 or int(data['VSUBS3'])>4095:
             print('WARNING: VSUBS3='+str(data['VSUBS3'])+' is out of range')
-        data['VRD3'] = numpy.fromstring(binascii.unhexlify(payload_data[56:60]),numpy.dtype('<u2'))
+        data['VRD3'] = numpy.fromstring(binascii.unhexlify(payload_data[58:62]),numpy.dtype('<u2'))
         if int(data['VRD3'])<0 or int(data['VRD3'])>4095:
             print('WARNING: VRD3='+str(data['VRD3'])+' is out of range')
-        data['VOD3'] = numpy.fromstring(binascii.unhexlify(payload_data[60:64]),numpy.dtype('<u2'))
+        data['VOD3'] = numpy.fromstring(binascii.unhexlify(payload_data[62:66]),numpy.dtype('<u2'))
         if int(data['VOD3'])<0 or int(data['VOD3'])>4095:
-            print('WARNING: VOD3='+str(data['VOD3'])+' is out of range')       
+            print('WARNING: VOD3='+str(data['VOD3'])+' is out of range')        
 
     else:
         print('SID not implemented')
