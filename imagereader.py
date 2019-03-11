@@ -120,10 +120,26 @@ def extract_racfile(directory,racfile):
                     CCD_image_data['channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
                     
                     CCD_meta_data['channel '+str(j+1)].append({})
-                    CCD_meta_data['channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ'][0]
-                    CCD_meta_data['channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW'][0]
-                    CCD_meta_data['channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL'][0]
-                    
+                    CCD_meta_data['channel '+str(j+1)][n]['BC']=AllDataSorted[x]['Source_data']['BC']
+                    CCD_meta_data['channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ']
+                    CCD_meta_data['channel '+str(j+1)][n]['EXPTS']=AllDataSorted[x]['Source_data']['EXPTS']
+                    CCD_meta_data['channel '+str(j+1)][n]['SID_hex']=AllDataSorted[x]['Source_data']['SID_hex']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    CCD_meta_data['channel '+str(j+1)][n]['GAIN']=AllDataSorted[x]['Source_data']['GAIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['TEXPMS']=AllDataSorted[x]['Source_data']['TEXPMS']
+                    CCD_meta_data['channel '+str(j+1)][n]['SID_mnemonic']=AllDataSorted[x]['Source_data']['SID_mnemonic']
+                    CCD_meta_data['channel '+str(j+1)][n]['WDWOV']=AllDataSorted[x]['Source_data']['WDWOV']
+                    CCD_meta_data['channel '+str(j+1)][n]['NFLUSH']=AllDataSorted[x]['Source_data']['NFLUSH']
+                    CCD_meta_data['channel '+str(j+1)][n]['NRSKIP']=AllDataSorted[x]['Source_data']['NRSKIP']
+                    CCD_meta_data['channel '+str(j+1)][n]['SID']=AllDataSorted[x]['Source_data']['SID']
+                    CCD_meta_data['channel '+str(j+1)][n]['EXPTSS']=AllDataSorted[x]['Source_data']['EXPTSS']
+                    CCD_meta_data['channel '+str(j+1)][n]['GAINOV']=AllDataSorted[x]['Source_data']['GAINOV']
+                    CCD_meta_data['channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
+                    CCD_meta_data['channel '+str(j+1)][n]['WDW']=AllDataSorted[x]['Source_data']['WDW']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['NRBIN']=AllDataSorted[x]['Source_data']['NRBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['CBIN']=AllDataSorted[x]['Source_data']['CBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['RBIN']=AllDataSorted[x]['Source_data']['RBIN']                    
                 elif AllDataSorted[x]['SPH_grouping_flags'] == '10':
                     #print 'CCD data stop'
                     CCD_image_data['channel '+str(j+1)][n]['stop'] = x 
@@ -206,7 +222,7 @@ def read_MATS_image(filename):
     metadata = json.load(json_file)
     json_file.close
     
-    if metadata['JPEGQ']<=100:
+    if metadata['JPEGQ'][0]<=100:
         image_data = read12bit_jpeg(filename + '.jpg')
     else:
         image_data = read16bit_pnmfile(filename + '.pnm')
