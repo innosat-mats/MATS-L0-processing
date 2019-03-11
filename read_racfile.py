@@ -23,8 +23,20 @@ def read_racfile(filename):
             AllData.append(p) #append data from package
     
     #AllDataSorted is a list with one entry for each package
-    AllDataSorted = sorted(AllData, key = lambda user: user['SPH_source_sequence_count']) #Sort based on sequence counts
+    count=numpy.zeros(len(AllData))
+    num_resetted_counter=[]
+    SPH_count_pre_reset=[]
+    for i in range(len(AllData)):
+        count[i] = AllData[i].get('SPH_source_sequence_count')  
+        if count[i]<count[i-1]:
+            print('WARNING: SPH cource sequence count was reset at paket: '+str(i))
+            num_resetted_counter.append(i)
+            SPH_count_pre_reset.append(count[i-1])
+    
+    counter_reset_diagnostic=[num_resetted_counter, SPH_count_pre_reset]
+    
+    #AllDataSorted = sorted(AllData, key = lambda user: (user['DFH_CUC_time_seconds'], user['DFH_CUC_time_fraction']))
                              
-    return AllDataSorted#, CCD_image_data
+    return AllData#, CCD_image_data
     
 
