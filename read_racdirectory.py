@@ -141,7 +141,7 @@ def read_racdirectory(in_directory,out_directory):
                     
                     im_data=np.reshape(im_data,(rows,cols))
                     fig, ax = plt.subplots()
-                    im=ax.pcolor(image_data)
+                    im=ax.pcolor(im_data)
                     ax.set_aspect('equal')
                     ax.set_ylim(ax.get_ylim()[::-1])
                     fig.colorbar(im,ax=ax,fraction=0.0305)
