@@ -9,26 +9,28 @@
 #day and one dict with all images
 #
 #Currently the code saves data multiple times, in particular the images are save as both hex, 
-#binary (to be written out to .jpeg) and .jpeg files, as well as in the original packets. 
+#binary (to be written out to .jpeg) and .png files, as well as in the original packets. 
 #
 #remove import of print function after upgrade to python 3
 from __future__ import print_function
 
 from os import listdir
+from os import remove
 import numpy as np
 from read_racfile import read_racfile
+from read12bit import read12bit_jpeg
 import json
 from JSON_Encoder import JSON_Encoder
 import binascii
-from PIL import Image
 import matplotlib.pyplot as plt
-#import cv
+
 
 #import json
 
 AllDataSorted = [] #List of dicts. Each entry is a packet
 CCD_image_data = {} #List of dicts. Each entry is a CCD image
 CCD_meta_data = {}
+
 
 def read_racdirectory(in_directory,out_directory):
     allFiles = listdir(in_directory)
@@ -111,16 +113,25 @@ def read_racdirectory(in_directory,out_directory):
 
     for j in range(0,3):#loop over channels again
         for i in range(len(CCD_image_data['data channel '+str(j+1)])):
-    #    #Write images out as jpeg images (for conversion in matlab)
+    #    #Write images out as jpeg images
             CCD_image_data['data channel '+str(j+1)][i]['filename'] = ''
             if (CCD_image_data['data channel '+str(j+1)][i].get('error') == 0):
     #check JPEGQ to determine type of image (jpg or uncompressed)           
                 if (CCD_meta_data['data channel '+str(j+1)][i].get('JPEGQ')<=100):
+    #compressed image data is save to 12bit jpeg file, which is converted into a pnm file and the re-read into python as usigned 16 bit integer
+    #the 16 bit data is plotted and save into a png file
                     filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.jpg'
-                    print(str('Writing file ' + filename))
+                    print(str('Writing file ' + filename[:-4] + '.png'))
                     CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
+
                     with open(filename,'w') as f:
                         f.write(CCD_image_data['data channel '+str(j+1)][i]['image'])
+                    
+                    im_data=read12bit_jpeg(filename)
+
+                    remove(filename)
+                    remove(filename[:-4]+'.pnm')
+                    
                 else:
     #uncompressed data is plotted and save to png file for visual (!) inspection
     #pnm files introduced apparent pixeloverflows
@@ -130,23 +141,19 @@ def read_racdirectory(in_directory,out_directory):
                     CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
                     cols=int(CCD_meta_data['data channel '+str(j+1)][i]['NCOL'])+1
                     rows=int(CCD_meta_data['data channel '+str(j+1)][i]['NROW'])
-                    #pnm_header="P5\n"+str(cols)+" "+str(rows)+"\n65535\n"
                     image_data=CCD_image_data['data channel '+str(j+1)][i]['image']
                     im_data=np.frombuffer(image_data, dtype=np.uint16)
                     
-                    #with open(filename,'w') as f:
-                        #f.write(pnm_header)
-                        #f.write(image_data.byteswap().tobytes())
-                        #f.write(image_data)
-                    
                     im_data=np.reshape(im_data,(rows,cols))
-                    fig, ax = plt.subplots()
-                    im=ax.pcolor(im_data)
-                    ax.set_aspect('equal')
-                    ax.set_ylim(ax.get_ylim()[::-1])
-                    fig.colorbar(im,ax=ax,fraction=0.0305)
-                    plt.tight_layout()
-                    plt.savefig(filename)
+                    
+                    
+            fig, ax = plt.subplots()
+            im=ax.pcolor(im_data)
+            ax.set_aspect('equal')
+            ax.set_ylim(ax.get_ylim()[::-1])
+            fig.colorbar(im,ax=ax,fraction=0.0305)
+            plt.tight_layout()
+            plt.savefig(filename[:-4] + ".png")
 
 
                     

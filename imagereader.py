@@ -17,6 +17,7 @@ from __future__ import print_function
 from os import listdir
 import numpy as np
 from read_racfile import read_racfile
+from read12bit import read12bit_jpeg
 import json
 from JSON_Encoder import JSON_Encoder
 import binascii
@@ -37,29 +38,6 @@ CCD_meta_data = {}
 def check_and_make_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-
-#Call external application for conversion of 12 bit jpeg
-def read12bit_jpeg(fileName):
-        djpegLocation = './djpeg'
-        outputFile = fileName[:-4] + ".pnm"
-    
-        batcmd = djpegLocation + ' -pnm -outfile ' +outputFile + ' ' + fileName #call jpeg decompression executable            
-        imagedata = subprocess.check_output(batcmd,shell=True) #load imagedata including header
-
-        with open(outputFile,'rb') as f:
-            imagedata=f.read()
-                
-        newLine=b'\n'
-        imagedata=imagedata.split(newLine,3)    #split into magicnumber, shape, maxval and data
-
-        imsize = imagedata[1].split() #size of image in height/width
-        imsize = [int(i) for i in imsize]
-        imsize.reverse() #flip size to get width/heigth
-        
-        im = np.frombuffer(imagedata[3], dtype=np.uint16) #read image data
-        
-        im = im.reshape(imsize) #reshape image
-        return im
 
 #save pnm file if uncompressed images are used    
 def read16bit_pnmfile(filename):
@@ -231,5 +209,4 @@ def read_MATS_image(filename):
     
 
 if __name__ == '__main__':
-    
     extract_racfile(sys.argv[1],sys.argv[2])
