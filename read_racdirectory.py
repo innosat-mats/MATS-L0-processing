@@ -63,14 +63,23 @@ def read_racdirectory(in_directory,out_directory):
     CCD_image_data['data channel 1'] = []
     CCD_image_data['data channel 2'] = []
     CCD_image_data['data channel 3'] = []
+    CCD_image_data['data channel 4'] = []
+    CCD_image_data['data channel 5'] = []
+    CCD_image_data['data channel 6'] = []
+    CCD_image_data['data channel 7'] = []
     
     #data needed for saving actual image to either jpg or pnm-file
     CCD_meta_data['data channel 1'] = []
     CCD_meta_data['data channel 2'] = []
     CCD_meta_data['data channel 3'] = []
+    CCD_meta_data['data channel 4'] = []
+    CCD_meta_data['data channel 5'] = []
+    CCD_meta_data['data channel 6'] = []
+    CCD_meta_data['data channel 7'] = []
+
     
     
-    for j in range(0,3):
+    for j in range(0,7):
         print('CCD data channel '+str(j+1))
         #loop over channels
     
@@ -89,9 +98,39 @@ def read_racdirectory(in_directory,out_directory):
                     CCD_image_data['data channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
                     
                     CCD_meta_data['data channel '+str(j+1)].append({})
+                    
+                    CCD_meta_data['data channel '+str(j+1)][n]['SID_mnemonic']=AllDataSorted[x]['Source_data']['SID_mnemonic']
+                    CCD_meta_data['data channel '+str(j+1)][n]['CCDSEL']=AllDataSorted[x]['Source_data']['CCDSEL']
+                    CCD_meta_data['data channel '+str(j+1)][n]['EXPTS']=AllDataSorted[x]['Source_data']['EXPTS']
+                    CCD_meta_data['data channel '+str(j+1)][n]['EXPTSS']=AllDataSorted[x]['Source_data']['EXPTSS']
+                    CCD_meta_data['data channel '+str(j+1)][n]['WDW']=AllDataSorted[x]['Source_data']['WDW']
+                    CCD_meta_data['data channel '+str(j+1)][n]['WDWOV']=AllDataSorted[x]['Source_data']['WDWOV']
                     CCD_meta_data['data channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['FRAME']=AllDataSorted[x]['Source_data']['FRAME']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NRBIN']=AllDataSorted[x]['Source_data']['NRBIN']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NRSKIP']=AllDataSorted[x]['Source_data']['NRSKIP']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
                     CCD_meta_data['data channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
                     CCD_meta_data['data channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NCSKIP']=AllDataSorted[x]['Source_data']['NCSKIP']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NFLUSH']=AllDataSorted[x]['Source_data']['NFLUSH']
+                    CCD_meta_data['data channel '+str(j+1)][n]['TEXPMS']=AllDataSorted[x]['Source_data']['TEXPMS']
+                    CCD_meta_data['data channel '+str(j+1)][n]['GAIN']=AllDataSorted[x]['Source_data']['GAIN']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['TEMP']=AllDataSorted[x]['Source_data']['TEMP']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['FBINOV']=AllDataSorted[x]['Source_data']['FBINOV']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['LBLNK']=AllDataSorted[x]['Source_data']['LBLNK']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['TBLNK']=AllDataSorted[x]['Source_data']['TBLNK']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['ZERO']=AllDataSorted[x]['Source_data']['ZERO']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['TIMING1']=AllDataSorted[x]['Source_data']['TIMING1']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['TIMING2']=AllDataSorted[x]['Source_data']['TIMING2']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['VERSION']=AllDataSorted[x]['Source_data']['VERSION']
+                    #CCD_meta_data['data channel '+str(j+1)][n]['TIMING3']=AllDataSorted[x]['Source_data']['TIMING3']
+                    CCD_meta_data['data channel '+str(j+1)][n]['NBC']=AllDataSorted[x]['Source_data']['NBC']
+                    CCD_meta_data['data channel '+str(j+1)][n]['BC']=AllDataSorted[x]['Source_data']['BC']
+
                     
                 elif AllDataSorted[x]['SPH_grouping_flags'] == '10':
                     #print 'CCD data stop'
@@ -129,7 +168,7 @@ def read_racdirectory(in_directory,out_directory):
         json.dump(AllDataSorted, outfile, sort_keys = True, indent = 4,
                ensure_ascii = False,cls=JSON_Encoder)
 
-    for j in range(0,3):#loop over channels again
+    for j in range(0,7):#loop over channels again
         for i in range(len(CCD_image_data['data channel '+str(j+1)])):
     #    #Write images out as jpeg images
             CCD_image_data['data channel '+str(j+1)][i]['filename'] = ''
@@ -138,7 +177,7 @@ def read_racdirectory(in_directory,out_directory):
                 if (CCD_meta_data['data channel '+str(j+1)][i].get('JPEGQ')<=100):
     #compressed image data is save to 12bit jpeg file, which is converted into a pnm file and the re-read into python as usigned 16 bit integer
     #the 16 bit data is plotted and save into a png file
-                    filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.jpg'
+                    filename = out_directory + '/IMAGES/' + str(CCD_meta_data['data channel '+str(j+1)][i]['EXPTS'][0]) + '.jpg'
                     print(str('Writing file ' + filename[:-4] + '.png'))
                     CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
 
@@ -154,7 +193,7 @@ def read_racdirectory(in_directory,out_directory):
     #uncompressed data is plotted and save to png file for visual (!) inspection
     #pnm files introduced apparent pixeloverflows
     #uncompressed image data itself can be retrieved from corresponding json files
-                    filename = out_directory + '/IMAGES/test_channel'+str(j+1)+'_'+ str(i) + '.png'
+                    filename = out_directory + '/IMAGES/' + str(CCD_meta_data['data channel '+str(j+1)][i]['EXPTS'][0]) + '.png'
                     print(str('Writing file ' + filename))
                     CCD_image_data['data channel '+str(j+1)][i]['filename'] = filename
                     cols=int(CCD_meta_data['data channel '+str(j+1)][i]['NCOL'])+1
@@ -181,7 +220,7 @@ def read_racdirectory(in_directory,out_directory):
     filename = out_directory + '/JSON/images.json'
     with open(filename, 'w') as outfile:
         print(str('Writing file ' + filename))
-        json.dump(CCD_image_data, outfile, sort_keys = True, indent = 4,
+        json.dump(CCD_meta_data, outfile, sort_keys = True, indent = 4,
                ensure_ascii = False,cls=JSON_Encoder)
     
     return AllDataSorted, CCD_image_data
