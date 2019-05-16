@@ -23,7 +23,9 @@ import json
 from JSON_Encoder import JSON_Encoder
 import binascii
 import matplotlib.pyplot as plt
-
+from libtiff import TIFF
+import cv2
+import os
 
 #import json
 
@@ -33,6 +35,22 @@ CCD_meta_data = {}
 
 
 def read_racdirectory(in_directory,out_directory):
+    dirName = out_directory + str('/JSON/')
+    if not os.path.exists(dirName):
+        os.makedirs(dirName)
+        print("Directory " , dirName ,  " Created ")
+    else:    
+        print("Directory " , dirName ,  " already exists")
+
+    dirName = out_directory + str('/IMAGES/')
+    if not os.path.exists(dirName):
+        os.makedirs(dirName)
+        print("Directory " , dirName ,  " Created ")
+    else:    
+        print("Directory " , dirName ,  " already exists")
+
+
+
     allFiles = listdir(in_directory)
     for i in range(len(allFiles)):
        print(str('Reading file ' + in_directory + '/' + allFiles[i]))
@@ -154,7 +172,8 @@ def read_racdirectory(in_directory,out_directory):
             fig.colorbar(im,ax=ax,fraction=0.0305)
             plt.tight_layout()
             plt.savefig(filename[:-4] + ".png")
-
+            cv2.imwrite(filename[:-4] + "_data.png",im_data.astype(np.uint16))
+            np.save(filename[:-4] + "_data.npy",im_data)
 
                     
 #end loop over channels
