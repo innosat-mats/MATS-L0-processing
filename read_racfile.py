@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import numpy
-from read_packet import read_packet
+from read_packet_ICD_Issue_G import read_packet
 #import binascii
 
 ##########################################
