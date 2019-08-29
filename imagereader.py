@@ -49,7 +49,7 @@ def extract_racfile(directory,racfile):
     
 
     print(str('Reading file ' + racfile))
-    out_directory = racfile
+    out_directory = racfile[:-4]
     check_and_make_directory(out_directory)
     check_and_make_directory(out_directory+'/IMAGES/')
     check_and_make_directory(out_directory+'/JSON/')
@@ -98,26 +98,40 @@ def extract_racfile(directory,racfile):
                     CCD_image_data['channel '+str(j+1)][n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
                     
                     CCD_meta_data['channel '+str(j+1)].append({})
-                    CCD_meta_data['channel '+str(j+1)][n]['BC']=AllDataSorted[x]['Source_data']['BC']
-                    CCD_meta_data['channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ']
-                    CCD_meta_data['channel '+str(j+1)][n]['EXPTS']=AllDataSorted[x]['Source_data']['EXPTS']
-                    CCD_meta_data['channel '+str(j+1)][n]['SID_hex']=AllDataSorted[x]['Source_data']['SID_hex']
-                    CCD_meta_data['channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
-                    CCD_meta_data['channel '+str(j+1)][n]['GAIN']=AllDataSorted[x]['Source_data']['GAIN']
-                    CCD_meta_data['channel '+str(j+1)][n]['TEXPMS']=AllDataSorted[x]['Source_data']['TEXPMS']
+
                     CCD_meta_data['channel '+str(j+1)][n]['SID_mnemonic']=AllDataSorted[x]['Source_data']['SID_mnemonic']
-                    CCD_meta_data['channel '+str(j+1)][n]['WDWOV']=AllDataSorted[x]['Source_data']['WDWOV']
-                    CCD_meta_data['channel '+str(j+1)][n]['NFLUSH']=AllDataSorted[x]['Source_data']['NFLUSH']
-                    CCD_meta_data['channel '+str(j+1)][n]['NRSKIP']=AllDataSorted[x]['Source_data']['NRSKIP']
-                    CCD_meta_data['channel '+str(j+1)][n]['SID']=AllDataSorted[x]['Source_data']['SID']
+                    CCD_meta_data['channel '+str(j+1)][n]['CCDSEL']=AllDataSorted[x]['Source_data']['CCDSEL']
+                    CCD_meta_data['channel '+str(j+1)][n]['EXPTS']=AllDataSorted[x]['Source_data']['EXPTS']
                     CCD_meta_data['channel '+str(j+1)][n]['EXPTSS']=AllDataSorted[x]['Source_data']['EXPTSS']
-                    CCD_meta_data['channel '+str(j+1)][n]['GAINOV']=AllDataSorted[x]['Source_data']['GAINOV']
-                    CCD_meta_data['channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
                     CCD_meta_data['channel '+str(j+1)][n]['WDW']=AllDataSorted[x]['Source_data']['WDW']
-                    CCD_meta_data['channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['WDWOV']=AllDataSorted[x]['Source_data']['WDWOV']
+                    CCD_meta_data['channel '+str(j+1)][n]['JPEGQ']=AllDataSorted[x]['Source_data']['JPEGQ']
+                    CCD_meta_data['channel '+str(j+1)][n]['FRAME']=AllDataSorted[x]['Source_data']['FRAME']
+                    CCD_meta_data['channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
                     CCD_meta_data['channel '+str(j+1)][n]['NRBIN']=AllDataSorted[x]['Source_data']['NRBIN']
-                    CCD_meta_data['channel '+str(j+1)][n]['CBIN']=AllDataSorted[x]['Source_data']['CBIN']
-                    CCD_meta_data['channel '+str(j+1)][n]['RBIN']=AllDataSorted[x]['Source_data']['RBIN']                    
+                    CCD_meta_data['channel '+str(j+1)][n]['NRSKIP']=AllDataSorted[x]['Source_data']['NRSKIP']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['NROW']=AllDataSorted[x]['Source_data']['NROW']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCOL']=AllDataSorted[x]['Source_data']['NCOL']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCBIN']=AllDataSorted[x]['Source_data']['NCBIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['NCSKIP']=AllDataSorted[x]['Source_data']['NCSKIP']
+                    CCD_meta_data['channel '+str(j+1)][n]['NFLUSH']=AllDataSorted[x]['Source_data']['NFLUSH']
+                    CCD_meta_data['channel '+str(j+1)][n]['TEXPMS']=AllDataSorted[x]['Source_data']['TEXPMS']
+                    CCD_meta_data['channel '+str(j+1)][n]['GAIN']=AllDataSorted[x]['Source_data']['GAIN']
+                    CCD_meta_data['channel '+str(j+1)][n]['TEMP']=AllDataSorted[x]['Source_data']['TEMP']
+                    CCD_meta_data['channel '+str(j+1)][n]['FBINOV']=AllDataSorted[x]['Source_data']['FBINOV']
+                    CCD_meta_data['channel '+str(j+1)][n]['LBLNK']=AllDataSorted[x]['Source_data']['LBLNK']
+                    CCD_meta_data['channel '+str(j+1)][n]['TBLNK']=AllDataSorted[x]['Source_data']['TBLNK']
+                    CCD_meta_data['channel '+str(j+1)][n]['ZERO']=AllDataSorted[x]['Source_data']['ZERO']
+                    CCD_meta_data['channel '+str(j+1)][n]['TIMING1']=AllDataSorted[x]['Source_data']['TIMING1']
+                    CCD_meta_data['channel '+str(j+1)][n]['TIMING2']=AllDataSorted[x]['Source_data']['TIMING2']
+                    CCD_meta_data['channel '+str(j+1)][n]['VERSION']=AllDataSorted[x]['Source_data']['VERSION']
+                    CCD_meta_data['channel '+str(j+1)][n]['TIMING3']=AllDataSorted[x]['Source_data']['TIMING3']
+                    CCD_meta_data['channel '+str(j+1)][n]['NBC']=AllDataSorted[x]['Source_data']['NBC']
+                    CCD_meta_data['channel '+str(j+1)][n]['BC']=AllDataSorted[x]['Source_data']['BC']
+
+                    
                 elif AllDataSorted[x]['SPH_grouping_flags'] == '10':
                     #print 'CCD data stop'
                     CCD_image_data['channel '+str(j+1)][n]['stop'] = x 
@@ -177,7 +191,7 @@ def extract_racfile(directory,racfile):
                     read12bit_jpeg(filename) #create pnm file
                     
                 else:
-                    filename = out_directory + '/IMAGES/image'+str(j+1)+'_'+ str(i) + '.pnm'
+                    filename = out_directory + '/IMAGES/channel'+str(j+1)+'_image_'+ str(i) + '.pnm'
                     print(str('Writing file ' + filename))
                     CCD_image_data['channel '+str(j+1)][i]['filename'] = filename
                     cols=int(CCD_meta_data['channel '+str(j+1)][i]['NCOL'])+1
