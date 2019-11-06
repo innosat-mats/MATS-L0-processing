@@ -33,7 +33,13 @@ CCD_image_data = {} #List of dicts. Each entry is a CCD image
 #CCD_meta_data = {}
 
 
-def read_racdirectory(in_directory,out_directory):
+def read_racdirectory(in_directory,out_directory=''):
+    if out_directory == '':
+      if os.path.isfile(in_directory):
+        out_directory = in_directory[:-4]
+      else:
+        out_directory = in_directory + '_out'
+      
     dirName = out_directory
     if not os.path.exists(dirName):
         os.makedirs(dirName)
@@ -243,3 +249,10 @@ def read_MATS_image(filename):
         CCD_image_data[i]['IMAGE'] = np.load(str(CCD_image_data[i]['IMAGEFILE']) + '_data.npy')
     
     return CCD_image_data
+
+def read_MATS_packets(filename):
+    json_file = open(filename,'r')
+    packet_data = json.load(json_file)
+    json_file.close
+    
+    return packet_data

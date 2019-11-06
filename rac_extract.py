@@ -3,7 +3,6 @@
 
 import sys, getopt
 from read_racdirectory import read_racdirectory
-import os
 
 def main(argv):
     in_directory = ''
@@ -25,11 +24,6 @@ def main(argv):
     if in_directory == '':
 		print('Input directory not specificed (use -i)')
 		sys.exit()
-    if out_directory == '':
-        if os.path.isfile(in_directory):
-              out_directory = in_directory[:-4]
-        else:
-              out_directory = in_directory + '_out'
           
     a, b = read_racdirectory(in_directory,out_directory)
 
