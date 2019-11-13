@@ -240,14 +240,15 @@ def read_racdirectory(in_directory,out_directory=''):
     
     return AllDataSorted, CCD_image
 
-def read_MATS_image(filename):
+
+def read_MATS_image(filename,pathdir=''):
     json_file = open(filename,'r')
     CCD_image_data = json.load(json_file)
     json_file.close
-    
+            
     for i in range(len(CCD_image_data)):
-        CCD_image_data[i]['IMAGE'] = np.load(str(CCD_image_data[i]['IMAGEFILE']) + '_data.npy')
-    
+        CCD_image_data[i]['IMAGE'] = np.load(pathdir+str(CCD_image_data[i]['IMAGEFILE']) + '_data.npy')
+
     return CCD_image_data
 
 def read_MATS_packets(filename):
