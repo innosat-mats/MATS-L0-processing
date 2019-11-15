@@ -138,6 +138,18 @@ def read_racdirectory(in_directory,out_directory=''):
 
                 CCD_image[n]['ID']=str(CCD_image[n]['EXPTS'][0]) + '_' + str(CCD_image[n]['EXPTSS'][0]) + '_' + str(CCD_image[n]['CCDSEL'][0])
 
+                # Extract variables from certain bits within the same element, see 6.4.1 Software ICD /LM 20191115               
+                CCD_image[n]['NColBinFPGA'] = CCD_image[n]['NCBIN'] & (4096-256)
+                CCD_image[n]['NColBinCCD'] = CCD_image[n]['NCBIN'] & 255
+                del CCD_image[n]['NCBIN']
+                CCD_image[n]['DigGain'] = CCD_image[n]['GAIN'] & 15 
+                CCD_image[n]['TimingFlag'] = CCD_image[n]['GAIN'] & 256
+                CCD_image[n]['SigMode'] =  CCD_image[n]['GAIN'] & 4096            
+                del CCD_image[n]['GAIN']
+                CCD_image[n]['WinModeFlag']=CCD_image[n]['WDW']& 128
+                CCD_image[n]['WinMode']=CCD_image[n]['WDW']& 7
+                del CCD_image[n]['WDW']
+                
                 
             elif AllDataSorted[x]['SPH_grouping_flags'] == '10':
                 #print 'CCD data stop'
