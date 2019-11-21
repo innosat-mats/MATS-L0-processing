@@ -136,7 +136,7 @@ def read_racdirectory(in_directory,out_directory=''):
                 CCD_image[n]['NBC']=AllDataSorted[x]['Source_data']['NBC']
                 CCD_image[n]['BC']=AllDataSorted[x]['Source_data']['BC']
 
-                CCD_image[n]['ID']=str(CCD_image[n]['EXPTS'][0]) + '_' + str(CCD_image[n]['EXPTSS'][0]) + '_' + str(CCD_image[n]['CCDSEL'][0])
+                CCD_image[n]['id']=str(CCD_image[n]['EXPTS'][0]) + '_' + str(CCD_image[n]['EXPTSS'][0]) + '_' + str(CCD_image[n]['CCDSEL'][0])
 
                 # Extract variables from certain bits within the same element, see 6.4.1 Software ICD /LM 20191115               
                 CCD_image[n]['NColBinFPGA'] = CCD_image[n]['NCBIN'] & (4096-256)
@@ -195,7 +195,7 @@ def read_racdirectory(in_directory,out_directory=''):
             if (CCD_image[i].get('JPEGQ')<=100):
 #compressed image data is save to 12bit jpeg file, which is converted into a pnm file and the re-read into python as usigned 16 bit integer
 #the 16 bit data is plotted and save into a png file
-                filename = out_directory + '/IMAGES/' + str(CCD_image[i]['ID'])
+                filename = out_directory + '/IMAGES/' + str(CCD_image[i]['id'])
                 print(str('Writing file ' + filename + '.png'))
                 CCD_image[i]['filename'] = filename
 
@@ -214,7 +214,7 @@ def read_racdirectory(in_directory,out_directory=''):
 #uncompressed image data itself can be retrieved from corresponding json files
               
               
-                filename = out_directory + '/IMAGES/' + str(CCD_image[i]['ID'])
+                filename = out_directory + '/IMAGES/' + str(CCD_image[i]['id'])
                 print(str('Writing file ' + filename))
                 CCD_image[i]['filename'] = filename
                 cols=int(CCD_image[i]['NCOL'])+1
