@@ -170,7 +170,7 @@ def read_racdirectory(in_directory,out_directory=''):
         if CCD_image[x].get('start')!=None and CCD_image[x].get('stop')!=None:
             if CCD_image[x]['start'] and CCD_image[x]['stop']:
                 a = "".join(CCD_image[x]['data'])
-                CCD_image[x]['image'] = binascii.unhexlify(a)
+                CCD_image[x]['image_data'] = binascii.unhexlify(a)
                 CCD_image[x]['error'] = 0
             else:
                 print('Warning: start or stop does not exist for image: ' + str(x))
@@ -200,7 +200,7 @@ def read_racdirectory(in_directory,out_directory=''):
                 CCD_image[i]['filename'] = filename
 
                 with open(filename,'w') as f:
-                    f.write(CCD_image[i]['image'])
+                    f.write(CCD_image[i]['image_data'])
                 
                 im_data=read12bit_jpeg(filename+'.jpg')
                 
@@ -219,15 +219,15 @@ def read_racdirectory(in_directory,out_directory=''):
                 CCD_image[i]['filename'] = filename
                 cols=int(CCD_image[i]['NCOL'])+1
                 rows=int(CCD_image[i]['NROW'])
-                image_data=CCD_image[i]['image']
+                image_data=CCD_image[i]['image_data']
                 im_data=np.frombuffer(image_data, dtype=np.uint16)
                 
                 im_data=np.reshape(im_data,(rows,cols))
                 
-        CCD_image[i]['IMAGEFILE'] = filename
+        CCD_image[i]['imagefile'] = filename
         #Can be used to store the image data directly                
         #CCD_image[i]['IMAGE16bit'] = im_data.astype(np.uint16) 
-        del CCD_image[i]['image']
+        del CCD_image[i]['image_data']
         
         
         fig, ax = plt.subplots()
@@ -259,7 +259,7 @@ def read_MATS_image(filename,pathdir=''):
     json_file.close
             
     for i in range(len(CCD_image_data)):
-        CCD_image_data[i]['IMAGE'] = np.load(pathdir+str(CCD_image_data[i]['IMAGEFILE']) + '_data.npy')
+        CCD_image_data[i]['image'] = np.load(pathdir+str(CCD_image_data[i]['imagefile']) + '_data.npy')
 
     return CCD_image_data
 
