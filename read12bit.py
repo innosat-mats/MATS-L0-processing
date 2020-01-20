@@ -11,7 +11,7 @@ import numpy as np
 #Call external application for conversion of 12 bit jpeg
 def read12bit_jpeg(fileName):
         djpegLocation = './djpeg'
-        outputFile = fileName[:-4] + ".pnm"
+        outputFile = fileName + ".pnm"
     
         batcmd = djpegLocation + ' -pnm -outfile ' +outputFile + ' ' + fileName #call jpeg decompression executable            
         imagedata = subprocess.check_output(batcmd,shell=True) #load imagedata including header
