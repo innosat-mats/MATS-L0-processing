@@ -10,11 +10,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
     except getopt.GetoptError:
-        print 'rac_extract.py -i <inputdir/file> -o <outputdir>'
+        print('rac_extract.py -i <inputdir/file> -o <outputdir>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'rac_extract.py -i <inputdir/file> -o <outputdir>'
+            print('rac_extract.py -i <inputdir/file> -o <outputdir>')
             sys.exit()
         elif opt in ("-i", "--idir"):
             in_directory = arg
@@ -22,8 +22,8 @@ def main(argv):
             out_directory = arg
 
     if in_directory == '':
-		print('Input directory not specificed (use -i)')
-		sys.exit()
+	    print('Input directory not specificed (use -i)')
+	    sys.exit()
           
     a, b = read_racdirectory(in_directory,out_directory)
 

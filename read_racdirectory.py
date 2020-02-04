@@ -200,7 +200,7 @@ def read_racdirectory(in_directory,out_directory=''):
                 print(str('Writing file ' + filename))
                 CCD_image[i]['filename'] = filename
 
-                with open(filename,'w') as f:
+                with open(filename,'wb') as f:
                     f.write(CCD_image[i]['image_data'])
                 
                 im_data=read12bit_jpeg(filename)

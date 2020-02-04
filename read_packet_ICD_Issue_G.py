@@ -4,6 +4,8 @@ from __future__ import print_function
 import numpy
 import binascii
 import crc16
+import codecs
+
 
 
 ##########################################
@@ -28,7 +30,7 @@ def read_packet(data, pointer = 0):
     ## Read header information
     block_length = 32
     A = data[pointer:pointer+block_length]
-    packet['RAMSES_header_hex'] = binascii.hexlify(A)
+    packet['RAMSES_header_hex'] = binascii.hexlify(A).decode()
     if packet['RAMSES_header_hex'][0:4] != '90eb':
         raise ValueError('Missing RAMSES header')
     pointer = pointer + block_length
@@ -37,7 +39,7 @@ def read_packet(data, pointer = 0):
     block_length = 2
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['SPH_packet_id_hex'] = binascii.hexlify(A)
+    packet['SPH_packet_id_hex'] =  binascii.hexlify(A).decode()
     packet['SPH_version'] = A_bin[0][0:3]
     if packet['SPH_version'] != '000':
         raise ValueError('Version different than 000')
@@ -60,7 +62,7 @@ def read_packet(data, pointer = 0):
     block_length = 2
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['SPH_packet_sequence_control_hex'] = binascii.hexlify(A)
+    packet['SPH_packet_sequence_control_hex'] =  binascii.hexlify(A).decode()
     packet['SPH_grouping_flags'] = A_bin[0][0:2]
     if packet['SPH_grouping_flags'] == '11' or packet['SPH_grouping_flags'] == '01' :
         packet['SPH_continuation_package'] = False
@@ -73,7 +75,7 @@ def read_packet(data, pointer = 0):
     block_length = 2
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['SPH_packet_length_hex'] = binascii.hexlify(A)
+    packet['SPH_packet_length_hex'] =  binascii.hexlify(A).decode()
     packet['SPH_packet_length'] = int(A_bin[0][:]+A_bin[1][:],2) #should use .join here instead!
     pointer = pointer + block_length
 
@@ -85,7 +87,7 @@ def read_packet(data, pointer = 0):
     block_length = data_field_header_length
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['DFH_data_field_header_hex'] = binascii.hexlify(A)
+    packet['DFH_data_field_header_hex'] =  binascii.hexlify(A).decode()
     if A_bin[0][0] != '0' or A_bin[0][4:8] != '0000':
         raise ValueError('Spare bits not set correctly in data field header')
     packet['DFH_TM_source_packet_PUS_version_number'] = A_bin[0][1:4]
@@ -101,7 +103,7 @@ def read_packet(data, pointer = 0):
     block_length = 2
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    SID_hex = binascii.hexlify(A)
+    SID_hex =  binascii.hexlify(A).decode()
     SID = int("".join(A_bin[:]),2)
     pointer = pointer + block_length
 
@@ -109,7 +111,7 @@ def read_packet(data, pointer = 0):
     block_length = packet['SPH_packet_length'] - data_field_header_length -2 - 1 # data length = packet lengt - data field header - sid length - 1
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['Source_data_hex'] = binascii.hexlify(A)
+    packet['Source_data_hex'] =  binascii.hexlify(A).decode()
     packet['Source_data'] = read_payload_data(packet['SPH_type_mnemonic'],packet['DFH_service_type'],
                                        packet['DFH_service_subtype'],SID,
                                        packet['SPH_continuation_package'],block_length,
@@ -123,11 +125,12 @@ def read_packet(data, pointer = 0):
     block_length = 2
     A = data[pointer:pointer+block_length]
     A_bin = [bin(x)[2:].zfill(8) for x in A]
-    packet['Packet_error_control_hex'] = binascii.hexlify(A)
+    packet['Packet_error_control_hex'] =  binascii.hexlify(A).decode()
     pointer = pointer + block_length
     
     packet_data = binascii.hexlify(data[initial_pointer+32:pointer-block_length]) #get binary data for all packet (-RAMSES header, -Packet error control hex)
-    crc_dec = crc16.crc16xmodem(packet_data.decode("hex"),65535) #Calculate crc16-CCITT (0xFFFF initialization)
+    decode_hex = codecs.getdecoder("hex_codec")
+    crc_dec = crc16.crc16xmodem(decode_hex(packet_data)[0],65535) #Calculate crc16-CCITT (0xFFFF initialization)
     crc = hex(crc_dec)[2:].zfill(4) #convert to hex, remove 0x from string and add leading zeros
     if packet['Packet_error_control_hex']  != crc:
         #raise ValueError('CRC checksum failed')
