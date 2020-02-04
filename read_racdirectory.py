@@ -56,6 +56,7 @@ def read_racdirectory(in_directory,out_directory=''):
 
 
     if os.path.isdir(in_directory):
+        print("Reading from directory ", in_directory)
         allFiles = listdir(in_directory)
         for i in range(len(allFiles)):
             print(str('Reading file ' + in_directory + '/' + allFiles[i]))
