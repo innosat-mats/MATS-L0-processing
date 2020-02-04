@@ -1,0 +1,4 @@
+*.rac
+./out/*
+./rac-files/*
+*.pyc
