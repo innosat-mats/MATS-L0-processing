@@ -38,7 +38,7 @@ def read_racdirectory(in_directory,out_directory=''):
       if os.path.isfile(in_directory):
         out_directory = in_directory[:-4]
       else:
-        out_directory = in_directory + '_out'
+        out_directory = in_directory + 'out'
       
     dirName = out_directory
     if not os.path.exists(dirName):
@@ -157,28 +157,39 @@ def read_racdirectory(in_directory,out_directory=''):
                 CCD_image[n]['stop'] = x 
                 CCD_image[n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
             elif AllDataSorted[x]['SPH_grouping_flags'] == '00':
-                if not CCD_image:
+                if not CCD_image: #if this is the first CCD image (i.e. CCD_image is empty)
                     print('Warning: current .rac file started with continued CCD data for this channel')
                     if n==-1:#currently a work-around
-                        CCD_image.append({})
-                        CCD_image[n+1]['cont'] = []
-                        CCD_image[n+1]['data'] = []
-                CCD_image[n]['cont'].append(x) 
-                CCD_image[n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
+                        n = n+1
+                        CCD_image.append({}) #start new image
+                        CCD_image[n]['start'] = -1 #-1 indicates started in previous rac file 
+                        CCD_image[n]['cont'] = [] 
+                        CCD_image[n]['stop'] = []
+                        CCD_image[n]['data'] = []
+                    else:
+                        raise ValueError('No image data, yet n > 0') 
+                        
+                else:
+                    CCD_image[n]['cont'].append(x) 
+                    CCD_image[n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
         
     for x in range(0,len(CCD_image)):
         #get-function allows to check if keywords are existing or not
         if CCD_image[x].get('start')!=None and CCD_image[x].get('stop')!=None:
-            if CCD_image[x]['start'] and CCD_image[x]['stop']:
+            if CCD_image[x]['start'] == -1 and CCD_image[x]['stop']: #no start, but a stop (from previous rac file)
+                CCD_image[x]['packet_error'] = -1
+            elif CCD_image[x]['start'] and not CCD_image[x]['stop']: #start, but no stop (continious to next rac file)
+                CCD_image[x]['packet_error'] = 1   
+            elif CCD_image[x]['start'] and CCD_image[x]['stop']:
                 a = "".join(CCD_image[x]['data'])
                 CCD_image[x]['image_data'] = binascii.unhexlify(a)
-                CCD_image[x]['error'] = 0
+                CCD_image[x]['packet_error'] = 0
             else:
                 print('Warning: start or stop does not exist for image: ' + str(x))
-                CCD_image[x]['error'] = 1
+                CCD_image[x]['packet_error'] = 2 
         else:
             print('Warning: start or stop key does not exist for image: ' + str(x))
-            CCD_image[x]['error'] = 1
+            CCD_image[x]['packet_error'] = 3
         del CCD_image[x]['data']
      #end channel loop  
     
@@ -191,7 +202,7 @@ def read_racdirectory(in_directory,out_directory=''):
     for i in range(len(CCD_image)):
 #    #Write images out as jpeg images
         CCD_image[i]['filename'] = ''
-        if (CCD_image[i].get('error') == 0):
+        if (CCD_image[i].get('packet_error') == 0):
 #check JPEGQ to determine type of image (jpg or uncompressed)           
             if (CCD_image[i].get('JPEGQ')<=100):
 #compressed image data is save to 12bit jpeg file, which is converted into a pnm file and the re-read into python as usigned 16 bit integer
@@ -222,27 +233,33 @@ def read_racdirectory(in_directory,out_directory=''):
                 rows=int(CCD_image[i]['NROW'])
                 image_data=CCD_image[i]['image_data']
                 im_data=np.frombuffer(image_data, dtype=np.uint16)
-                
-                im_data=np.reshape(im_data,(rows,cols))
-                
-        CCD_image[i]['imagefile'] = filename
-        #Can be used to store the image data directly                
-        #CCD_image[i]['IMAGE16bit'] = im_data.astype(np.uint16) 
-        del CCD_image[i]['image_data']
-        
-        
-        fig, ax = plt.subplots()
-        im=ax.pcolor(im_data)
-        ax.set_aspect('equal')
-        ax.set_ylim(ax.get_ylim()[::-1])
-        fig.colorbar(im,ax=ax,fraction=0.0305)
-        plt.tight_layout()
-        plt.savefig(filename + ".png")
-        cv2.imwrite(filename + "_data.png",im_data.astype(np.uint16))
-        np.save(filename + "_data.npy",im_data)
-        plt.close(fig)
+                try:
+        	    im_data=np.reshape(im_data,(rows,cols))
+		except ValueError:
+		    print(CCD_image[i])
 
-                    
+            CCD_image[i]['imagefile'] = filename
+            #Can be used to store the image data directly                
+            #CCD_image[i]['IMAGE16bit'] = im_data.astype(np.uint16) 
+            del CCD_image[i]['image_data']
+                
+            fig, ax = plt.subplots()
+            im=ax.pcolor(im_data)
+            ax.set_aspect('equal')
+            ax.set_ylim(ax.get_ylim()[::-1])
+            fig.colorbar(im,ax=ax,fraction=0.0305)
+            plt.tight_layout()
+            plt.savefig(filename + ".png")
+            cv2.imwrite(filename + "_data.png",im_data.astype(np.uint16))
+            np.save(filename + "_data.npy",im_data)
+            plt.close(fig)
+
+        else:
+            if CCD_image[i].get('id')!=None:
+                print('Image ' + CCD_image[i]['id']  + ' has error ' + str(CCD_image[i].get('packet_error')) + ' no image saved')
+            else:
+                print('Image ' + ' without ID '  + ' has error ' + str(CCD_image[i].get('packet_error')) + ' no image saved')
+            
 #end loop over channels
         
     filename = out_directory + '/images.json'
