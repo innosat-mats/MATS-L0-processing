@@ -167,12 +167,12 @@ def read_payload_generic_data(payload_data, sid, block_length_test):
 #Takes in payload housekeeping data as hex and reads it in the correct format and places in dictionary. All data is read with
 #small-endian.
 def read_payload_housekeeping_data(payload_data, sid, block_length_test):
-    print('Reading payload housekeeping data')
+    #print('Reading payload housekeeping data')
     data = {}
     
     if sid == 1:
         ## STATUS
-        print('Reading STATUS')    
+        #print('Reading STATUS')    
         block_length = 37
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match ' + str(block_length_test))
@@ -200,7 +200,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
 
     elif sid == 10:
         #Heater module housekeeping
-        print('Reading Heater housekeeping')    
+        #print('Reading Heater housekeeping')    
         block_length = 24#48
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match ' + str(block_length_test))    
@@ -245,7 +245,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
     
     elif sid == 20:
         #Power module housekeeping
-        print('Reading Power housekeeping')    
+        #print('Reading Power housekeeping')    
         block_length = 18
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match' + str(block_length_test))    
@@ -280,7 +280,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
 
     elif sid == 30:
         #CPRUA
-        print('Reading CPRUA housekeeping')    
+        #print('Reading CPRUA housekeeping')    
         block_length = 33#9
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match' + str(block_length_test))    
@@ -337,7 +337,7 @@ def read_payload_housekeeping_data(payload_data, sid, block_length_test):
             
     elif sid == 31:
         #CPRUB
-        print('Reading CPRUB housekeeping')    
+        #print('Reading CPRUB housekeeping')    
         block_length = 33#9
         if block_length != block_length_test:
             raise ValueError('Block length and SID does not match' + str(block_length_test))    

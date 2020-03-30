@@ -16,6 +16,7 @@ from __future__ import print_function
 
 from os import listdir
 from os import remove
+import sys
 import numpy as np
 from read_racfile import read_racfile
 from read12bit import read12bit_jpeg
@@ -38,7 +39,7 @@ def read_racdirectory(in_directory,out_directory=''):
       if os.path.isfile(in_directory):
         out_directory = in_directory[:-4]
       else:
-        out_directory = in_directory + 'out'
+        out_directory = os.path.normpath(in_directory) + '_out'
       
     dirName = out_directory
     if not os.path.exists(dirName):
@@ -57,7 +58,8 @@ def read_racdirectory(in_directory,out_directory=''):
 
     if os.path.isdir(in_directory):
         print("Reading from directory ", in_directory)
-        allFiles = listdir(in_directory)
+        allFiles = sorted(listdir(in_directory), key=str.lower)
+        print("All files are: " , allFiles)
         for i in range(len(allFiles)):
             print(str('Reading file ' + in_directory + '/' + allFiles[i]))
             #tmp1,tmp2 = read_racfile(in_directory + '/' + allFiles[i])
@@ -172,23 +174,25 @@ def read_racdirectory(in_directory,out_directory=''):
                 else:
                     CCD_image[n]['cont'].append(x) 
                     CCD_image[n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
-        
+    print('Total ' + str(len(CCD_image)) + ' images read')    
     for x in range(0,len(CCD_image)):
         #get-function allows to check if keywords are existing or not
         if CCD_image[x].get('start')!=None and CCD_image[x].get('stop')!=None:
             if CCD_image[x]['start'] == -1 and CCD_image[x]['stop']: #no start, but a stop (from previous rac file)
                 CCD_image[x]['packet_error'] = -1
+		print('no start, but stop image number: ' + str(x))
             elif CCD_image[x]['start'] and not CCD_image[x]['stop']: #start, but no stop (continious to next rac file)
-                CCD_image[x]['packet_error'] = 1   
+		print('start, but no stop - image number ' + str(x) + ' IMAGE ID: ' + str(CCD_image[x]['id']))                
+		CCD_image[x]['packet_error'] = 1   
             elif CCD_image[x]['start'] and CCD_image[x]['stop']:
                 a = "".join(CCD_image[x]['data'])
                 CCD_image[x]['image_data'] = binascii.unhexlify(a)
                 CCD_image[x]['packet_error'] = 0
             else:
-                print('Warning: start or stop does not exist for image: ' + str(x))
+                print('Warning: start or stop does not exist - image number ' + str(x) + ' IMAGE ID: ' + str(CCD_image[x]['id']))
                 CCD_image[x]['packet_error'] = 2 
         else:
-            print('Warning: start or stop key does not exist for image: ' + str(x))
+            print('Warning: start or stop key does not exist - image number ' + str(x) + ' IMAGE ID: ' + str(CCD_image[x]['id']))
             CCD_image[x]['packet_error'] = 3
         del CCD_image[x]['data']
      #end channel loop  
@@ -233,10 +237,10 @@ def read_racdirectory(in_directory,out_directory=''):
                 rows=int(CCD_image[i]['NROW'])
                 image_data=CCD_image[i]['image_data']
                 im_data=np.frombuffer(image_data, dtype=np.uint16)
-                try:
-        	    im_data=np.reshape(im_data,(rows,cols))
-		except ValueError:
-		    print(CCD_image[i])
+            try:
+                im_data=np.reshape(im_data,(rows,cols))
+            except ValueError:
+            	ValueError('Shape of image wrong, missing data, files or wrong filenames (are all rac files in chronological order?)')
 
             CCD_image[i]['imagefile'] = filename
             #Can be used to store the image data directly                
