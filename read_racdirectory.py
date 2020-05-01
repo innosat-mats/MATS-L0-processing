@@ -180,10 +180,10 @@ def read_racdirectory(in_directory,out_directory=''):
         if CCD_image[x].get('start')!=None and CCD_image[x].get('stop')!=None:
             if CCD_image[x]['start'] == -1 and CCD_image[x]['stop']: #no start, but a stop (from previous rac file)
                 CCD_image[x]['packet_error'] = -1
-		print('no start, but stop image number: ' + str(x))
+                print('no start, but stop image number: ' + str(x))
             elif CCD_image[x]['start'] and not CCD_image[x]['stop']: #start, but no stop (continious to next rac file)
-		print('start, but no stop - image number ' + str(x) + ' IMAGE ID: ' + str(CCD_image[x]['id']))                
-		CCD_image[x]['packet_error'] = 1   
+		       print('start, but no stop - image number ' + str(x) + ' IMAGE ID: ' + str(CCD_image[x]['id']))                
+		       CCD_image[x]['packet_error'] = 1   
             elif CCD_image[x]['start'] and CCD_image[x]['stop']:
                 a = "".join(CCD_image[x]['data'])
                 CCD_image[x]['image_data'] = binascii.unhexlify(a)
@@ -225,27 +225,25 @@ def read_racdirectory(in_directory,out_directory=''):
                 remove(filename +'.pnm')
                 
             else:
-#uncompressed data is plotted and save to png file for visual (!) inspection
-#pnm files introduced apparent pixeloverflows
-#uncompressed image data itself can be retrieved from corresponding json files
-              
+                #uncompressed data is plotted and save to png file for visual (!) inspection                              
               
                 filename = out_directory + '/IMAGES/' + str(CCD_image[i]['id'])
                 print(str('Writing file ' + filename))
                 CCD_image[i]['filename'] = filename
-                cols=int(CCD_image[i]['NCOL'])+1
-                rows=int(CCD_image[i]['NROW'])
                 image_data=CCD_image[i]['image_data']
                 im_data=np.frombuffer(image_data, dtype=np.uint16)
+            
+            cols=int(CCD_image[i]['NCOL'])+1
+            rows=int(CCD_image[i]['NROW'])
             try:
                 im_data=np.reshape(im_data,(rows,cols))
             except ValueError:
-            	ValueError('Shape of image wrong, missing data, files or wrong filenames (are all rac files in chronological order?)')
+                ValueError('Shape of image wrong, missing data, files or wrong filenames (are all rac files in chronological order?)')
 
             CCD_image[i]['imagefile'] = filename
-            #Can be used to store the image data directly                
+            #Can be used to store the image data directly
             #CCD_image[i]['IMAGE16bit'] = im_data.astype(np.uint16) 
-            del CCD_image[i]['image_data']
+            del CCD_image[i]['image_data'] #delete image data to minimize size of json file
                 
             fig, ax = plt.subplots()
             im=ax.pcolor(im_data)
