@@ -26,6 +26,10 @@ import binascii
 import matplotlib.pyplot as plt
 import cv2
 import os
+import math
+
+
+NANOS_PER_SECOND = 1e9
 
 #import json
 
@@ -139,7 +143,7 @@ def read_racdirectory(in_directory,out_directory=''):
                 CCD_image[n]['NBC']=AllDataSorted[x]['Source_data']['NBC']
                 CCD_image[n]['BC']=AllDataSorted[x]['Source_data']['BC']
 
-                CCD_image[n]['id']=str(CCD_image[n]['EXPTS'][0]) + '_' + str(CCD_image[n]['EXPTSS'][0]) + '_' + str(CCD_image[n]['CCDSEL'][0])
+                CCD_image[n]['id']=str(UnsegmentedTimeNanoseconds(CCD_image[n]['EXPTS'][0],CCD_image[n]['EXPTSS'][0])) + '_' + str(CCD_image[n]['CCDSEL'][0])
 
                 # Extract variables from certain bits within the same element, see 6.4.1 Software ICD /LM 20191115               
                 CCD_image[n]['NColBinFPGA'] = CCD_image[n]['NCBIN'] & (4096-256)
@@ -175,6 +179,7 @@ def read_racdirectory(in_directory,out_directory=''):
                     CCD_image[n]['cont'].append(x) 
                     CCD_image[n]['data'].append(AllDataSorted[x]['Source_data']['IMG'])
     print('Total ' + str(len(CCD_image)) + ' images read')    
+    
     for x in range(0,len(CCD_image)):
         #get-function allows to check if keywords are existing or not
         if CCD_image[x].get('start')!=None and CCD_image[x].get('stop')!=None:
@@ -289,3 +294,9 @@ def read_MATS_packets(filename):
     json_file.close
     
     return packet_data
+    
+def UnsegmentedTimeNanoseconds(coarseTime, fineTime):
+    nanos  = coarseTime * NANOS_PER_SECOND
+    fine = math.ldexp(fineTime,-16)
+
+    return int(nanos + round(fine*NANOS_PER_SECOND))
